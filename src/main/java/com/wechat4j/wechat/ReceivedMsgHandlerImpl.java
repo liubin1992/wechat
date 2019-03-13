@@ -40,13 +40,13 @@ public class ReceivedMsgHandlerImpl implements ReceivedMsgHandler {
 
         //根据UserName获取联系人信息
         UserInfo contact = wechat.getContactByUserName(true, msg.getFromUserName());
-        log.info("UserInfo:" + JSON.toJSONString(contact));
+        log.debug("UserInfo:" + JSON.toJSONString(contact));
         if(contact == null){
             return;
         }
 
-        String name = StringUtil.isEmpty(contact.getRemarkName()) ? contact.getNickName() : contact.getRemarkName();
-        System.out.println(name + ": " + msg.getContent());
+        /*String name = StringUtil.isEmpty(contact.getRemarkName()) ? contact.getNickName() : contact.getRemarkName();
+        System.out.println(name + ": " + msg.getContent());*/
 
         synchronized (this){
             sendMessage(wechat, msg.getContent(), contact.getUserName(), contact.getNickName(), contact.getRemarkName());
@@ -72,7 +72,7 @@ public class ReceivedMsgHandlerImpl implements ReceivedMsgHandler {
         }
 
         if (StringUtils.isEmpty(content)){
-            content = "咦~ 你发的啥，我还在升级中。。。";
+            content = "咦~ 你发的啥，这条不答复你[右哼哼]。。。";
         }else {
             try {
                 content = tulingQA(content);
@@ -88,9 +88,9 @@ public class ReceivedMsgHandlerImpl implements ReceivedMsgHandler {
         if(content.length() > 100){
             List<String> divLines = StringUtil.getDivLines(content, 100);
             for (String msg: divLines) {
-                wechat.sendText(userName, nickName, remarkName, msg);
+                wechat.sendText(userName, nickName, remarkName, msg+"【切片发送】");
                 try {
-                    Thread.sleep(1000L);
+                    Thread.sleep((random.nextInt(max)%(max-min+1) + min)*1000L);
                 } catch (InterruptedException e) {
                     log.error("休眠被打断");
                 }
